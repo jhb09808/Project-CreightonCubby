@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block content %}
+<h1 class="mb-6 text-3xl">Inbox</h1>
+
+<div class="space-y-6">
+    {% for conversation in conversations %}
+        <a href="{% url 'conversation:detail' conversation.id %}">
+            <div class="p-6 flex rounded-xl {% if conversation.members.all|length > 1 %}bg-gray-100{% else %}bg-blue-100{% endif %}">
+                <div class="pr-6">
+                    <img src="{{ conversation.item.image.url }}" class="w-20 rounded-xl">
+                </div>
+
+                <div>
+                    {% for member in conversation.members.all %}
+                        {% if member != request.user %}
+                            <p class="mb-4"><strong>{{ member.username }}</strong> | {{ conversation.modified_at }}</p>
+                            <p>{{ conversation.item.name }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    <form method="post" action="{% url 'conversation:delete' conversation.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure you want to delete this conversation?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% endblock %}
